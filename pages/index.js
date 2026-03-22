@@ -36,6 +36,9 @@ const TICKERS = [
   { code: 'CPI',   ticker: 'CPI.JO',   name: 'Capitec' },
   { code: 'IMP',   ticker: 'IMP.JO',   name: 'Impala Platinum' },
   { code: 'SLM',   ticker: 'SLM.JO',   name: 'Sanlam' },
+  { code: 'GOLD',  ticker: 'GC=F',     name: 'Gold (COMEX Futures)' },
+  { code: 'SILVER', ticker: 'SI=F',    name: 'Silver (COMEX Futures)' },
+  { code: 'BTC',   ticker: 'BTC-USD',  name: 'Bitcoin' },
 ];
 
 const chartOptions = (title) => ({
@@ -122,7 +125,7 @@ export default function Home() {
       </div>
 
       {tab === 'signals' ? (
-        <SignalsTab signal={signal} charts={charts} tickerLabel={tickerLabel} />
+        <SignalsTab signal={signal} charts={charts} tickerLabel={tickerLabel} ticker={selectedTicker} />
       ) : (
         <BacktestTab backtest={backtest} charts={charts} tickerLabel={tickerLabel} />
       )}
@@ -150,7 +153,13 @@ function TickerSelector({ selected, onChange }) {
 
 // --- Signals Tab ---
 
-function SignalsTab({ signal, charts, tickerLabel }) {
+function currencyLabel(ticker) {
+  if (ticker === 'GC=F' || ticker === 'SI=F') return 'USD';
+  if (ticker === 'BTC-USD') return 'USD';
+  return 'ZAc';
+}
+
+function SignalsTab({ signal, charts, tickerLabel, ticker }) {
   const priceChartData = {
     labels: charts.dates,
     datasets: [
@@ -177,7 +186,7 @@ function SignalsTab({ signal, charts, tickerLabel }) {
           </div>
           <div className="signal-row">
             <span className="signal-label">Current Price</span>
-            <span className="signal-value">{signal.currentPrice?.toFixed(2)} ZAc</span>
+            <span className="signal-value">{signal.currentPrice?.toFixed(2)} {currencyLabel(ticker)}</span>
           </div>
           <div className="signal-row">
             <span className="signal-label">RL Signal</span>
@@ -226,7 +235,7 @@ function SignalsTab({ signal, charts, tickerLabel }) {
                 <div className="value neutral">{signal.winProb}%</div>
               </div>
               <div className="trade-item">
-                <div className="label">R:R Ratio</div>
+                <div className="label">Reward:Risk Ratio</div>
                 <div className="value neutral">2:1</div>
               </div>
               <div className="trade-item">
@@ -298,12 +307,12 @@ function BacktestTab({ backtest, charts, tickerLabel }) {
       <div className="card" style={{ marginBottom: 20 }}>
         <h2>Backtest Performance — {tickerLabel}</h2>
         <div className="stats-grid">
-          <StatBox label="RL Return" value={`${backtest.rlReturn > 0 ? '+' : ''}${backtest.rlReturn}%`} color={backtest.rlReturn >= 0 ? '#22c55e' : '#ef4444'} />
-          <StatBox label="B&H Return" value={`${backtest.bhReturn > 0 ? '+' : ''}${backtest.bhReturn}%`} color={backtest.bhReturn >= 0 ? '#22c55e' : '#ef4444'} />
-          <StatBox label="RL Sharpe" value={backtest.rlSharpe} color={backtest.rlSharpe >= 1 ? '#22c55e' : backtest.rlSharpe >= 0 ? '#f59e0b' : '#ef4444'} />
-          <StatBox label="B&H Sharpe" value={backtest.bhSharpe} color={backtest.bhSharpe >= 1 ? '#22c55e' : backtest.bhSharpe >= 0 ? '#f59e0b' : '#ef4444'} />
-          <StatBox label="RL Max DD" value={`-${backtest.rlMaxDD}%`} color={backtest.rlMaxDD <= 10 ? '#22c55e' : backtest.rlMaxDD <= 20 ? '#f59e0b' : '#ef4444'} />
-          <StatBox label="B&H Max DD" value={`-${backtest.bhMaxDD}%`} color={backtest.bhMaxDD <= 10 ? '#22c55e' : backtest.bhMaxDD <= 20 ? '#f59e0b' : '#ef4444'} />
+          <StatBox label="RL Strategy Return" value={`${backtest.rlReturn > 0 ? '+' : ''}${backtest.rlReturn}%`} color={backtest.rlReturn >= 0 ? '#22c55e' : '#ef4444'} />
+          <StatBox label="Buy & Hold Return" value={`${backtest.bhReturn > 0 ? '+' : ''}${backtest.bhReturn}%`} color={backtest.bhReturn >= 0 ? '#22c55e' : '#ef4444'} />
+          <StatBox label="RL Strategy Sharpe Ratio" value={backtest.rlSharpe} color={backtest.rlSharpe >= 1 ? '#22c55e' : backtest.rlSharpe >= 0 ? '#f59e0b' : '#ef4444'} />
+          <StatBox label="Buy & Hold Sharpe Ratio" value={backtest.bhSharpe} color={backtest.bhSharpe >= 1 ? '#22c55e' : backtest.bhSharpe >= 0 ? '#f59e0b' : '#ef4444'} />
+          <StatBox label="RL Strategy Max Drawdown" value={`-${backtest.rlMaxDD}%`} color={backtest.rlMaxDD <= 10 ? '#22c55e' : backtest.rlMaxDD <= 20 ? '#f59e0b' : '#ef4444'} />
+          <StatBox label="Buy & Hold Max Drawdown" value={`-${backtest.bhMaxDD}%`} color={backtest.bhMaxDD <= 10 ? '#22c55e' : backtest.bhMaxDD <= 20 ? '#f59e0b' : '#ef4444'} />
         </div>
       </div>
 
@@ -320,11 +329,11 @@ function BacktestTab({ backtest, charts, tickerLabel }) {
             <span className={`signal-value ${backtest.winRate >= 50 ? 'bull' : 'bear'}`}>{backtest.winRate}%</span>
           </div>
           <div className="signal-row">
-            <span className="signal-label">Avg Win</span>
+            <span className="signal-label">Average Win</span>
             <span className="signal-value bull">+{backtest.avgWin}%</span>
           </div>
           <div className="signal-row">
-            <span className="signal-label">Avg Loss</span>
+            <span className="signal-label">Average Loss</span>
             <span className="signal-value bear">{backtest.avgLoss}%</span>
           </div>
           <div className="signal-row">
@@ -334,8 +343,8 @@ function BacktestTab({ backtest, charts, tickerLabel }) {
             </span>
           </div>
           <div className="signal-row">
-            <span className="signal-label">Avg Hold (days)</span>
-            <span className="signal-value">{backtest.avgHoldDays}</span>
+            <span className="signal-label">Average Holding Period</span>
+            <span className="signal-value">{backtest.avgHoldDays} days</span>
           </div>
         </div>
 
@@ -345,7 +354,7 @@ function BacktestTab({ backtest, charts, tickerLabel }) {
           <div className="trades-scroll">
             <table className="top40-table">
               <thead>
-                <tr><th>Entry</th><th>Exit</th><th>Return</th><th>Days</th></tr>
+                <tr><th>Entry Date</th><th>Exit Date</th><th>Return</th><th>Hold Days</th></tr>
               </thead>
               <tbody>
                 {backtest.trades.map((t, i) => (
