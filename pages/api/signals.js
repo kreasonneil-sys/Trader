@@ -1,5 +1,7 @@
 const { fetchSignals } = require('../../lib/signals');
 
+export const maxDuration = 60;
+
 let cachedData = null;
 let cacheTime = 0;
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
