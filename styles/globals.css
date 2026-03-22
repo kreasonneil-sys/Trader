@@ -59,6 +59,102 @@ h1 {
   border-color: #22c55e;
 }
 
+/* --- Featured Buttons --- */
+
+.featured-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.featured-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 140px;
+  max-width: 260px;
+}
+
+.featured-btn:hover {
+  border-color: #475569;
+  color: #e2e8f0;
+  background: #253348;
+}
+
+.featured-active {
+  border-color: #22c55e;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.featured-icon {
+  font-size: 1.2rem;
+}
+
+.featured-label {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.featured-name {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.featured-active .featured-name {
+  color: #86efac;
+}
+
+/* --- Period Selector --- */
+
+.period-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.period-label {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.period-btn {
+  padding: 6px 14px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.period-btn:hover {
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+.period-active {
+  background: #334155;
+  border-color: #f97316;
+  color: #f97316;
+}
+
 /* --- Tabs --- */
 
 .tabs {
