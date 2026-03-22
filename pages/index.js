@@ -14,6 +14,30 @@ import { Line } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
+const TICKERS = [
+  { code: 'STX40', ticker: 'STX40.JO', name: 'Satrix 40 ETF' },
+  { code: 'BHG',   ticker: 'BHG.JO',   name: 'BHP Group' },
+  { code: 'PRX',   ticker: 'PRX.JO',   name: 'Prosus' },
+  { code: 'ANH',   ticker: 'ANH.JO',   name: 'AB InBev' },
+  { code: 'CFR',   ticker: 'CFR.JO',   name: 'Richemont' },
+  { code: 'GLN',   ticker: 'GLN.JO',   name: 'Glencore' },
+  { code: 'NPN',   ticker: 'NPN.JO',   name: 'Naspers' },
+  { code: 'BTI',   ticker: 'BTI.JO',   name: 'British American Tobacco' },
+  { code: 'AGL',   ticker: 'AGL.JO',   name: 'Anglo American' },
+  { code: 'GFI',   ticker: 'GFI.JO',   name: 'Gold Fields' },
+  { code: 'ANG',   ticker: 'ANG.JO',   name: 'AngloGold Ashanti' },
+  { code: 'FSR',   ticker: 'FSR.JO',   name: 'FirstRand' },
+  { code: 'SBK',   ticker: 'SBK.JO',   name: 'Standard Bank' },
+  { code: 'MTN',   ticker: 'MTN.JO',   name: 'MTN Group' },
+  { code: 'SOL',   ticker: 'SOL.JO',   name: 'Sasol' },
+  { code: 'SHP',   ticker: 'SHP.JO',   name: 'Shoprite' },
+  { code: 'VOD',   ticker: 'VOD.JO',   name: 'Vodacom' },
+  { code: 'ABG',   ticker: 'ABG.JO',   name: 'Absa Group' },
+  { code: 'CPI',   ticker: 'CPI.JO',   name: 'Capitec' },
+  { code: 'IMP',   ticker: 'IMP.JO',   name: 'Impala Platinum' },
+  { code: 'SLM',   ticker: 'SLM.JO',   name: 'Sanlam' },
+];
+
 const chartOptions = (title) => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -33,9 +57,14 @@ export default function Home() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState('signals');
+  const [selectedTicker, setSelectedTicker] = useState('STX40.JO');
 
-  useEffect(() => {
-    fetch('/api/signals')
+  function loadTicker(ticker) {
+    setLoading(true);
+    setError(null);
+    setData(null);
+    fetch(`/api/signals?ticker=${encodeURIComponent(ticker)}`)
       .then(async res => {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || `Server error ${res.status}`);
@@ -43,14 +72,21 @@ export default function Home() {
       })
       .then(d => { setData(d); setLoading(false); })
       .catch(e => { setError(e.message); setLoading(false); });
-  }, []);
+  }
 
+  useEffect(() => { loadTicker(selectedTicker); }, [selectedTicker]);
+
+  const tickerLabel = TICKERS.find(t => t.ticker === selectedTicker)?.name || selectedTicker;
+
+  // --- Loading & error states ---
   if (loading) {
     return (
       <div className="container">
+        <h1>JSE Confluence Signals</h1>
+        <TickerSelector selected={selectedTicker} onChange={setSelectedTicker} />
         <div className="loading">
           <div className="spinner" />
-          <p>Fetching JSE data & running RL model...</p>
+          <p>Fetching {tickerLabel} data & running RL model...</p>
           <p style={{ color: '#64748b', fontSize: '0.85rem' }}>This may take 30-60 seconds on first load</p>
         </div>
       </div>
@@ -60,41 +96,72 @@ export default function Home() {
   if (error) {
     return (
       <div className="container">
+        <h1>JSE Confluence Signals</h1>
+        <TickerSelector selected={selectedTicker} onChange={setSelectedTicker} />
         <div className="error">
           <h2>Error loading signals</h2>
           <p>{error}</p>
-          <button onClick={() => window.location.reload()} style={{ marginTop: 16, padding: '8px 24px', background: '#22c55e', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer' }}>
-            Retry
-          </button>
+          <button onClick={() => loadTicker(selectedTicker)} className="retry-btn">Retry</button>
         </div>
       </div>
     );
   }
 
-  const { signal, charts, top40 } = data;
+  const { signal, charts, backtest } = data;
 
+  return (
+    <div className="container">
+      <h1>JSE Confluence Signals</h1>
+      <p className="subtitle">HMM Regime Detection + RL Q-Learning + Technical Confluence</p>
+
+      <TickerSelector selected={selectedTicker} onChange={setSelectedTicker} />
+
+      <div className="tabs">
+        <button className={`tab ${tab === 'signals' ? 'tab-active' : ''}`} onClick={() => setTab('signals')}>Signals</button>
+        <button className={`tab ${tab === 'backtest' ? 'tab-active' : ''}`} onClick={() => setTab('backtest')}>Backtest</button>
+      </div>
+
+      {tab === 'signals' ? (
+        <SignalsTab signal={signal} charts={charts} tickerLabel={tickerLabel} />
+      ) : (
+        <BacktestTab backtest={backtest} charts={charts} tickerLabel={tickerLabel} />
+      )}
+
+      <div className="footer">
+        <p>JSE Confluence Signals — Data from Yahoo Finance — Not financial advice</p>
+      </div>
+    </div>
+  );
+}
+
+// --- Ticker Selector ---
+
+function TickerSelector({ selected, onChange }) {
+  return (
+    <div className="ticker-selector">
+      <select value={selected} onChange={e => onChange(e.target.value)} className="ticker-select">
+        {TICKERS.map(t => (
+          <option key={t.ticker} value={t.ticker}>{t.code} — {t.name}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+// --- Signals Tab ---
+
+function SignalsTab({ signal, charts, tickerLabel }) {
   const priceChartData = {
     labels: charts.dates,
     datasets: [
-      { label: 'Satrix 40', data: charts.prices, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.05)', fill: true },
+      { label: tickerLabel, data: charts.prices, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.05)', fill: true },
       { label: 'SMA 50', data: charts.sma50, borderColor: '#f59e0b', borderDash: [5, 5] },
       { label: 'SMA 200', data: charts.sma200, borderColor: '#ef4444', borderDash: [5, 5] }
     ]
   };
 
-  const equityChartData = {
-    labels: charts.dates,
-    datasets: [
-      { label: 'Buy & Hold', data: charts.bhEquity, borderColor: '#64748b' },
-      { label: 'RL Strategy', data: charts.rlEquity, borderColor: '#f97316' }
-    ]
-  };
-
   return (
-    <div className="container">
-      <h1>JSE Top 40 Confluence Signals</h1>
-      <p className="subtitle">HMM Regime Detection + RL Q-Learning + Technical Confluence — Satrix 40 ETF</p>
-
+    <>
       <div className={`confluence-banner ${signal.confluence ? 'confluence-active' : 'confluence-inactive'}`}>
         {signal.confluence
           ? `CONFLUENCE TRIGGERED — ${signal.passedCount}/${signal.totalFactors} signals aligned (${signal.confluenceScore}%)`
@@ -190,40 +257,133 @@ export default function Home() {
       </div>
 
       <div className="chart-container" style={{ height: 350 }}>
-        <Line data={priceChartData} options={chartOptions('Satrix 40 Price + Moving Averages')} />
+        <Line data={priceChartData} options={chartOptions(`${tickerLabel} — Price + Moving Averages`)} />
       </div>
+    </>
+  );
+}
 
-      <div className="chart-container" style={{ height: 350 }}>
-        <Line data={equityChartData} options={chartOptions('Equity Curves — Buy & Hold vs RL Strategy (R10,000 start)')} />
-      </div>
+// --- Backtest Tab ---
 
-      {top40.length > 0 && (
-        <div className="card">
-          <h2>JSE Top 40 Snapshot</h2>
-          <table className="top40-table">
-            <thead>
-              <tr><th>Code</th><th>Name</th><th>Price (ZAc)</th><th>Change</th></tr>
-            </thead>
-            <tbody>
-              {top40.map(s => (
-                <tr key={s.code}>
-                  <td style={{ fontWeight: 600 }}>{s.code}</td>
-                  <td>{s.name}</td>
-                  <td>{s.price?.toFixed(2)}</td>
-                  <td className={s.change >= 0 ? 'bull' : 'bear'}>
-                    {s.change >= 0 ? '+' : ''}{s.change?.toFixed(2)}%
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+function BacktestTab({ backtest, charts, tickerLabel }) {
+  const equityChartData = {
+    labels: charts.dates,
+    datasets: [
+      { label: 'Buy & Hold', data: charts.bhEquity, borderColor: '#64748b' },
+      { label: 'RL Strategy', data: charts.rlEquity, borderColor: '#f97316' }
+    ]
+  };
+
+  const drawdownChartData = {
+    labels: charts.dates,
+    datasets: [
+      { label: 'Drawdown %', data: charts.drawdown, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.15)', fill: true }
+    ]
+  };
+
+  const drawdownOptions = {
+    ...chartOptions(`${tickerLabel} — RL Strategy Drawdown`),
+    scales: {
+      ...chartOptions('').scales,
+      y: {
+        ...chartOptions('').scales.y,
+        ticks: { ...chartOptions('').scales.y.ticks, callback: v => v + '%' }
+      }
+    }
+  };
+
+  return (
+    <>
+      {/* Key Metrics */}
+      <div className="card" style={{ marginBottom: 20 }}>
+        <h2>Backtest Performance — {tickerLabel}</h2>
+        <div className="stats-grid">
+          <StatBox label="RL Return" value={`${backtest.rlReturn > 0 ? '+' : ''}${backtest.rlReturn}%`} color={backtest.rlReturn >= 0 ? '#22c55e' : '#ef4444'} />
+          <StatBox label="B&H Return" value={`${backtest.bhReturn > 0 ? '+' : ''}${backtest.bhReturn}%`} color={backtest.bhReturn >= 0 ? '#22c55e' : '#ef4444'} />
+          <StatBox label="RL Sharpe" value={backtest.rlSharpe} color={backtest.rlSharpe >= 1 ? '#22c55e' : backtest.rlSharpe >= 0 ? '#f59e0b' : '#ef4444'} />
+          <StatBox label="B&H Sharpe" value={backtest.bhSharpe} color={backtest.bhSharpe >= 1 ? '#22c55e' : backtest.bhSharpe >= 0 ? '#f59e0b' : '#ef4444'} />
+          <StatBox label="RL Max DD" value={`-${backtest.rlMaxDD}%`} color={backtest.rlMaxDD <= 10 ? '#22c55e' : backtest.rlMaxDD <= 20 ? '#f59e0b' : '#ef4444'} />
+          <StatBox label="B&H Max DD" value={`-${backtest.bhMaxDD}%`} color={backtest.bhMaxDD <= 10 ? '#22c55e' : backtest.bhMaxDD <= 20 ? '#f59e0b' : '#ef4444'} />
         </div>
-      )}
-
-      <div className="footer">
-        <p>JSE Top 40 Confluence Signals — Data from Yahoo Finance — Not financial advice</p>
-        <p>Refresh for latest signals. Model retrains on each request.</p>
       </div>
+
+      {/* Trade Stats */}
+      <div className="grid" style={{ marginBottom: 20 }}>
+        <div className="card">
+          <h2>Trade Statistics</h2>
+          <div className="signal-row">
+            <span className="signal-label">Total Trades</span>
+            <span className="signal-value">{backtest.totalTrades}</span>
+          </div>
+          <div className="signal-row">
+            <span className="signal-label">Win Rate</span>
+            <span className={`signal-value ${backtest.winRate >= 50 ? 'bull' : 'bear'}`}>{backtest.winRate}%</span>
+          </div>
+          <div className="signal-row">
+            <span className="signal-label">Avg Win</span>
+            <span className="signal-value bull">+{backtest.avgWin}%</span>
+          </div>
+          <div className="signal-row">
+            <span className="signal-label">Avg Loss</span>
+            <span className="signal-value bear">{backtest.avgLoss}%</span>
+          </div>
+          <div className="signal-row">
+            <span className="signal-label">Profit Factor</span>
+            <span className={`signal-value ${backtest.profitFactor >= 1.5 ? 'bull' : backtest.profitFactor >= 1 ? 'neutral' : 'bear'}`}>
+              {backtest.profitFactor >= 999 ? '∞' : backtest.profitFactor}
+            </span>
+          </div>
+          <div className="signal-row">
+            <span className="signal-label">Avg Hold (days)</span>
+            <span className="signal-value">{backtest.avgHoldDays}</span>
+          </div>
+        </div>
+
+        {/* Recent Trades */}
+        <div className="card">
+          <h2>Recent Trades</h2>
+          <div className="trades-scroll">
+            <table className="top40-table">
+              <thead>
+                <tr><th>Entry</th><th>Exit</th><th>Return</th><th>Days</th></tr>
+              </thead>
+              <tbody>
+                {backtest.trades.map((t, i) => (
+                  <tr key={i}>
+                    <td>{t.entryDate}</td>
+                    <td>{t.exitDate}</td>
+                    <td className={t.returnPct >= 0 ? 'bull' : 'bear'}>
+                      {t.returnPct >= 0 ? '+' : ''}{t.returnPct.toFixed(2)}%
+                    </td>
+                    <td>{t.holdDays}d</td>
+                  </tr>
+                ))}
+                {backtest.trades.length === 0 && (
+                  <tr><td colSpan={4} style={{ color: '#64748b', textAlign: 'center' }}>No trades recorded</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts */}
+      <div className="chart-container" style={{ height: 350 }}>
+        <Line data={equityChartData} options={chartOptions(`${tickerLabel} — Equity Curves (R10,000 start)`)} />
+      </div>
+
+      <div className="chart-container" style={{ height: 250 }}>
+        <Line data={drawdownChartData} options={drawdownOptions} />
+      </div>
+    </>
+  );
+}
+
+function StatBox({ label, value, color }) {
+  return (
+    <div className="stat-box">
+      <div className="stat-label">{label}</div>
+      <div className="stat-value" style={{ color }}>{value}</div>
     </div>
   );
 }
