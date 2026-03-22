@@ -21,8 +21,7 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('Signal fetch error:', error);
     res.status(500).json({
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: error.message || 'Unknown server error'
     });
   }
 }

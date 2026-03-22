@@ -36,9 +36,10 @@ export default function Home() {
 
   useEffect(() => {
     fetch('/api/signals')
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch signals');
-        return res.json();
+      .then(async res => {
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || `Server error ${res.status}`);
+        return json;
       })
       .then(d => { setData(d); setLoading(false); })
       .catch(e => { setError(e.message); setLoading(false); });
