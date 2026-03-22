@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -97,8 +97,8 @@ export default function Home() {
 
       <div className={`confluence-banner ${signal.confluence ? 'confluence-active' : 'confluence-inactive'}`}>
         {signal.confluence
-          ? '✅ CONFLUENCE TRIGGERED — All signals aligned for entry'
-          : '❌ No confluence — Waiting for RL + Bull Regime + RSI alignment'}
+          ? `CONFLUENCE TRIGGERED — ${signal.passedCount}/${signal.totalFactors} signals aligned (${signal.confluenceScore}%)`
+          : `No confluence — ${signal.passedCount}/${signal.totalFactors} signals aligned (${signal.confluenceScore}%, need 75%+)`}
       </div>
 
       <div className="grid">
@@ -168,29 +168,25 @@ export default function Home() {
               </div>
             </div>
           </div>
-        ) : (
-          <div className="card">
-            <h2>Confluence Conditions</h2>
-            <div className="signal-row">
-              <span className="signal-label">RL says BUY</span>
-              <span className={`signal-value ${signal.rlAction === 'BUY' ? 'bull' : 'bear'}`}>
-                {signal.rlAction === 'BUY' ? '✓' : '✗'}
-              </span>
-            </div>
-            <div className="signal-row">
-              <span className="signal-label">Bull Regime (SMA50 {'>'} SMA200)</span>
-              <span className={`signal-value ${signal.regime === 'BULL' ? 'bull' : 'bear'}`}>
-                {signal.regime === 'BULL' ? '✓' : '✗'}
-              </span>
-            </div>
-            <div className="signal-row">
-              <span className="signal-label">RSI in range (45-65)</span>
-              <span className={`signal-value ${signal.rsi >= 45 && signal.rsi <= 65 ? 'bull' : 'bear'}`}>
-                {signal.rsi >= 45 && signal.rsi <= 65 ? '✓' : '✗'}
-              </span>
-            </div>
+        ) : null}
+
+        <div className="card">
+          <h2>Confluence Factors ({signal.passedCount}/{signal.totalFactors})</h2>
+          <div className="confluence-meter">
+            <div className="confluence-fill" style={{ width: `${signal.confluenceScore}%`, background: signal.confluenceScore >= 75 ? '#22c55e' : signal.confluenceScore >= 50 ? '#f59e0b' : '#ef4444' }} />
           </div>
-        )}
+          {signal.factors.map((f, i) => (
+            <div className="signal-row" key={i}>
+              <span className="signal-label">
+                {f.name}
+                <span style={{ color: '#64748b', fontSize: '0.75rem', marginLeft: 6 }}>{f.description}</span>
+              </span>
+              <span className={`signal-value ${f.passed ? 'bull' : 'bear'}`}>
+                {f.passed ? '✓' : '✗'} {f.value}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="chart-container" style={{ height: 350 }}>
