@@ -275,8 +275,9 @@ function SignalsTab({ signal, charts, tickerLabel, ticker }) {
 // --- Backtest Tab ---
 
 function BacktestTab({ backtest, charts, tickerLabel }) {
+  const btDates = charts.btDates || charts.dates;
   const equityChartData = {
-    labels: charts.dates,
+    labels: btDates,
     datasets: [
       { label: 'Buy & Hold', data: charts.bhEquity, borderColor: '#64748b' },
       { label: 'RL Strategy', data: charts.rlEquity, borderColor: '#f97316' }
@@ -284,7 +285,7 @@ function BacktestTab({ backtest, charts, tickerLabel }) {
   };
 
   const drawdownChartData = {
-    labels: charts.dates,
+    labels: btDates,
     datasets: [
       { label: 'Drawdown %', data: charts.drawdown, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.15)', fill: true }
     ]
@@ -305,7 +306,7 @@ function BacktestTab({ backtest, charts, tickerLabel }) {
     <>
       {/* Key Metrics */}
       <div className="card" style={{ marginBottom: 20 }}>
-        <h2>Backtest Performance — {tickerLabel}</h2>
+        <h2>Backtest Performance (6 Months) — {tickerLabel}</h2>
         <div className="stats-grid">
           <StatBox label="RL Strategy Return" value={`${backtest.rlReturn > 0 ? '+' : ''}${backtest.rlReturn}%`} color={backtest.rlReturn >= 0 ? '#22c55e' : '#ef4444'} />
           <StatBox label="Buy & Hold Return" value={`${backtest.bhReturn > 0 ? '+' : ''}${backtest.bhReturn}%`} color={backtest.bhReturn >= 0 ? '#22c55e' : '#ef4444'} />
