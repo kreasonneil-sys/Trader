@@ -155,6 +155,39 @@ h1 {
   color: #f97316;
 }
 
+/* --- Strategy Selector --- */
+
+.strategy-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.strategy-btn {
+  padding: 8px 18px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.strategy-btn:hover {
+  border-color: #475569;
+  color: #e2e8f0;
+  background: #253348;
+}
+
+.strategy-active {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
 /* --- Tabs --- */
 
 .tabs {

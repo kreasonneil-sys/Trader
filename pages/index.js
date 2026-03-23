@@ -53,6 +53,11 @@ const BACKTEST_PERIODS = [
   { key: '3y', label: '3 Years' },
 ];
 
+const STRATEGY_CONFIGS = [
+  { key: 'config1', label: 'Config 1: Breakout', short: 'Breakout' },
+  { key: 'config2', label: 'Config 2: Bounce', short: 'Bounce' },
+];
+
 const chartOptions = (title) => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -75,12 +80,13 @@ export default function Home() {
   const [tab, setTab] = useState('signals');
   const [selectedTicker, setSelectedTicker] = useState('GC=F');
   const [backtestPeriod, setBacktestPeriod] = useState('6m');
+  const [strategy, setStrategy] = useState('config1');
 
-  function loadData(ticker, period) {
+  function loadData(ticker, period, strat) {
     setLoading(true);
     setError(null);
     setData(null);
-    fetch(`/api/signals?ticker=${encodeURIComponent(ticker)}&period=${encodeURIComponent(period)}`)
+    fetch(`/api/signals?ticker=${encodeURIComponent(ticker)}&period=${encodeURIComponent(period)}&strategy=${encodeURIComponent(strat)}`)
       .then(async res => {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || `Server error ${res.status}`);
@@ -90,7 +96,7 @@ export default function Home() {
       .catch(e => { setError(e.message); setLoading(false); });
   }
 
-  useEffect(() => { loadData(selectedTicker, backtestPeriod); }, [selectedTicker, backtestPeriod]);
+  useEffect(() => { loadData(selectedTicker, backtestPeriod, strategy); }, [selectedTicker, backtestPeriod, strategy]);
 
   const tickerLabel = ALL_TICKERS.find(t => t.ticker === selectedTicker)?.name || selectedTicker;
 
@@ -117,7 +123,7 @@ export default function Home() {
         <div className="error">
           <h2>Error loading signals</h2>
           <p>{error}</p>
-          <button onClick={() => loadData(selectedTicker, backtestPeriod)} className="retry-btn">Retry</button>
+          <button onClick={() => loadData(selectedTicker, backtestPeriod, strategy)} className="retry-btn">Retry</button>
         </div>
       </div>
     );
@@ -128,9 +134,21 @@ export default function Home() {
   return (
     <div className="container">
       <h1>JSE Confluence Signals</h1>
-      <p className="subtitle">Channel Breakout + Trend Following + Technical Confluence</p>
+      <p className="subtitle">{data?.strategyLabel || 'Channel Breakout + Trend Following'} + Technical Confluence</p>
 
       <TickerSelector selected={selectedTicker} onChange={setSelectedTicker} />
+
+      <div className="strategy-selector">
+        {STRATEGY_CONFIGS.map(s => (
+          <button
+            key={s.key}
+            className={`strategy-btn ${strategy === s.key ? 'strategy-active' : ''}`}
+            onClick={() => setStrategy(s.key)}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
 
       <div className="tabs">
         <button className={`tab ${tab === 'signals' ? 'tab-active' : ''}`} onClick={() => setTab('signals')}>Signals</button>
