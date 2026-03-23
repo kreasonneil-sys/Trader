@@ -383,7 +383,7 @@ h1 {
 /* --- Trades scroll --- */
 
 .trades-scroll {
-  max-height: 280px;
+  max-height: 500px;
   overflow-y: auto;
 }
 

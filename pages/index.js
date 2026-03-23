@@ -428,7 +428,7 @@ function BacktestTab({ backtest, charts, tickerLabel, backtestPeriod, onPeriodCh
 
         {/* Recent Trades */}
         <div className="card">
-          <h2>Recent Trades</h2>
+          <h2>All Trades ({backtest.trades.length})</h2>
           <div className="trades-scroll">
             <table className="top40-table">
               <thead>
