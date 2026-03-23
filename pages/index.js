@@ -20,30 +20,7 @@ const FEATURED_TICKERS = [
   { code: 'SILVER', ticker: 'SI=F',    name: 'Silver (COMEX Futures)' },
 ];
 
-const OTHER_TICKERS = [
-  { code: 'BHG',   ticker: 'BHG.JO',   name: 'BHP Group' },
-  { code: 'PRX',   ticker: 'PRX.JO',   name: 'Prosus' },
-  { code: 'ANH',   ticker: 'ANH.JO',   name: 'AB InBev' },
-  { code: 'CFR',   ticker: 'CFR.JO',   name: 'Richemont' },
-  { code: 'GLN',   ticker: 'GLN.JO',   name: 'Glencore' },
-  { code: 'NPN',   ticker: 'NPN.JO',   name: 'Naspers' },
-  { code: 'BTI',   ticker: 'BTI.JO',   name: 'British American Tobacco' },
-  { code: 'AGL',   ticker: 'AGL.JO',   name: 'Anglo American' },
-  { code: 'GFI',   ticker: 'GFI.JO',   name: 'Gold Fields' },
-  { code: 'ANG',   ticker: 'ANG.JO',   name: 'AngloGold Ashanti' },
-  { code: 'FSR',   ticker: 'FSR.JO',   name: 'FirstRand' },
-  { code: 'SBK',   ticker: 'SBK.JO',   name: 'Standard Bank' },
-  { code: 'MTN',   ticker: 'MTN.JO',   name: 'MTN Group' },
-  { code: 'SOL',   ticker: 'SOL.JO',   name: 'Sasol' },
-  { code: 'SHP',   ticker: 'SHP.JO',   name: 'Shoprite' },
-  { code: 'VOD',   ticker: 'VOD.JO',   name: 'Vodacom' },
-  { code: 'ABG',   ticker: 'ABG.JO',   name: 'Absa Group' },
-  { code: 'CPI',   ticker: 'CPI.JO',   name: 'Capitec' },
-  { code: 'IMP',   ticker: 'IMP.JO',   name: 'Impala Platinum' },
-  { code: 'SLM',   ticker: 'SLM.JO',   name: 'Sanlam' },
-];
-
-const ALL_TICKERS = [...FEATURED_TICKERS, ...OTHER_TICKERS];
+const ALL_TICKERS = FEATURED_TICKERS;
 
 const BACKTEST_PERIODS = [
   { key: '6m', label: '6 Months' },
@@ -193,18 +170,6 @@ function TickerSelector({ selected, onChange }) {
           </button>
         ))}
       </div>
-      <select value={selected} onChange={e => onChange(e.target.value)} className="ticker-select">
-        <optgroup label="Featured">
-          {FEATURED_TICKERS.map(t => (
-            <option key={t.ticker} value={t.ticker}>{t.code} — {t.name}</option>
-          ))}
-        </optgroup>
-        <optgroup label="Other Stocks">
-          {OTHER_TICKERS.map(t => (
-            <option key={t.ticker} value={t.ticker}>{t.code} — {t.name}</option>
-          ))}
-        </optgroup>
-      </select>
     </div>
   );
 }
@@ -212,9 +177,7 @@ function TickerSelector({ selected, onChange }) {
 // --- Signals Tab ---
 
 function currencyLabel(ticker) {
-  if (ticker === 'GC=F' || ticker === 'SI=F') return 'USD';
-  if (ticker === 'BTC-USD') return 'USD';
-  return 'ZAc';
+  return 'USD';
 }
 
 function SignalsTab({ signal, charts, tickerLabel, ticker }) {
