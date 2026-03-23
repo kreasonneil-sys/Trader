@@ -398,11 +398,11 @@ function BacktestTab({ backtest, charts, tickerLabel, backtestPeriod, onPeriodCh
               </thead>
               <tbody>
                 {backtest.trades.map((t, i) => (
-                  <tr key={i}>
+                  <tr key={i} className={t.open ? 'open-trade' : ''}>
                     <td>{t.entryDate}</td>
-                    <td>{t.exitDate}</td>
+                    <td>{t.open ? <span className="open-badge">OPEN</span> : t.exitDate}</td>
                     <td className={t.returnPct >= 0 ? 'bull' : 'bear'}>
-                      {t.returnPct >= 0 ? '+' : ''}{t.returnPct.toFixed(2)}%
+                      {t.returnPct >= 0 ? '+' : ''}{t.returnPct.toFixed(2)}%{t.open ? ' *' : ''}
                     </td>
                     <td>{t.holdDays}d</td>
                   </tr>

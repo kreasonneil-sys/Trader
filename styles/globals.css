@@ -379,6 +379,24 @@ h1 {
   border-radius: 3px;
 }
 
+/* --- Open Trade Highlight --- */
+
+.open-trade {
+  background: rgba(59, 130, 246, 0.12);
+  border-left: 3px solid #3b82f6;
+}
+
+.open-badge {
+  display: inline-block;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
 /* --- Loading & Error --- */
 
 .loading {
