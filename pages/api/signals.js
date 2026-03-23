@@ -8,7 +8,7 @@ const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 
 export default async function handler(req, res) {
   try {
-    const tickerParam = req.query.ticker || 'STX40.JO';
+    const tickerParam = req.query.ticker || 'GC=F';
     const periodParam = req.query.period || '6m';
     const strategyParam = req.query.strategy || 'config1';
 

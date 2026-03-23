@@ -16,11 +16,11 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const FEATURED_TICKERS = [
   { code: 'GOLD',  ticker: 'GC=F',     name: 'Gold (COMEX Futures)' },
-  { code: 'STX40', ticker: 'STX40.JO', name: 'Satrix 40 ETF' },
   { code: 'BTC',   ticker: 'BTC-USD',  name: 'Bitcoin' },
+  { code: 'SILVER', ticker: 'SI=F',    name: 'Silver (COMEX Futures)' },
 ];
 
-const JSE_TICKERS = [
+const OTHER_TICKERS = [
   { code: 'BHG',   ticker: 'BHG.JO',   name: 'BHP Group' },
   { code: 'PRX',   ticker: 'PRX.JO',   name: 'Prosus' },
   { code: 'ANH',   ticker: 'ANH.JO',   name: 'AB InBev' },
@@ -41,10 +41,9 @@ const JSE_TICKERS = [
   { code: 'CPI',   ticker: 'CPI.JO',   name: 'Capitec' },
   { code: 'IMP',   ticker: 'IMP.JO',   name: 'Impala Platinum' },
   { code: 'SLM',   ticker: 'SLM.JO',   name: 'Sanlam' },
-  { code: 'SILVER', ticker: 'SI=F',    name: 'Silver (COMEX Futures)' },
 ];
 
-const ALL_TICKERS = [...FEATURED_TICKERS, ...JSE_TICKERS];
+const ALL_TICKERS = [...FEATURED_TICKERS, ...OTHER_TICKERS];
 
 const BACKTEST_PERIODS = [
   { key: '6m', label: '6 Months' },
@@ -104,7 +103,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="container">
-        <h1>JSE Confluence Signals</h1>
+        <h1>Confluence Signals</h1>
         <TickerSelector selected={selectedTicker} onChange={setSelectedTicker} />
         <div className="loading">
           <div className="spinner" />
@@ -118,7 +117,7 @@ export default function Home() {
   if (error) {
     return (
       <div className="container">
-        <h1>JSE Confluence Signals</h1>
+        <h1>Confluence Signals</h1>
         <TickerSelector selected={selectedTicker} onChange={setSelectedTicker} />
         <div className="error">
           <h2>Error loading signals</h2>
@@ -133,7 +132,7 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1>JSE Confluence Signals</h1>
+      <h1>Confluence Signals</h1>
       <p className="subtitle">{data?.strategyLabel || 'Channel Breakout + Trend Following'} + Technical Confluence</p>
 
       <TickerSelector selected={selectedTicker} onChange={setSelectedTicker} />
@@ -168,7 +167,7 @@ export default function Home() {
       )}
 
       <div className="footer">
-        <p>JSE Confluence Signals — Data from Yahoo Finance — Not financial advice</p>
+        <p>Confluence Signals — Data from Yahoo Finance — Not financial advice</p>
       </div>
     </div>
   );
@@ -187,7 +186,7 @@ function TickerSelector({ selected, onChange }) {
             onClick={() => onChange(t.ticker)}
           >
             <span className="featured-icon">
-              {t.code === 'GOLD' ? '\u{1F947}' : t.code === 'BTC' ? '\u{20BF}' : '\u{1F4C8}'}
+              {t.code === 'GOLD' ? '\u{1F947}' : t.code === 'BTC' ? '\u{20BF}' : t.code === 'SILVER' ? '\u{1FA99}' : '\u{1F4C8}'}
             </span>
             <span className="featured-label">{t.code}</span>
             <span className="featured-name">{t.name}</span>
@@ -200,8 +199,8 @@ function TickerSelector({ selected, onChange }) {
             <option key={t.ticker} value={t.ticker}>{t.code} — {t.name}</option>
           ))}
         </optgroup>
-        <optgroup label="JSE Stocks & Commodities">
-          {JSE_TICKERS.map(t => (
+        <optgroup label="Other Stocks">
+          {OTHER_TICKERS.map(t => (
             <option key={t.ticker} value={t.ticker}>{t.code} — {t.name}</option>
           ))}
         </optgroup>
