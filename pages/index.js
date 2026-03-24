@@ -211,7 +211,7 @@ function SignalsTab({ signal, charts, tickerLabel, ticker }) {
           </div>
           <div className="signal-row">
             <span className="signal-label">Strategy Signal</span>
-            <span className={`signal-value ${signal.rlAction === 'BUY' ? 'bull' : signal.rlAction === 'SELL' ? 'bear' : 'neutral'}`}>
+            <span className={`signal-value ${signal.rlAction === 'BUY' ? 'bull' : (signal.rlAction === 'SELL' || signal.rlAction === 'SHORT') ? 'bear' : 'neutral'}`}>
               {signal.rlAction}
             </span>
           </div>
@@ -394,11 +394,12 @@ function BacktestTab({ backtest, charts, tickerLabel, backtestPeriod, onPeriodCh
           <div className="trades-scroll">
             <table className="top40-table">
               <thead>
-                <tr><th>Entry Date</th><th>Exit Date</th><th>Return</th><th>Hold Days</th></tr>
+                <tr><th>Side</th><th>Entry Date</th><th>Exit Date</th><th>Return</th><th>Hold Days</th></tr>
               </thead>
               <tbody>
                 {backtest.trades.map((t, i) => (
                   <tr key={i} className={t.open ? 'open-trade' : ''}>
+                    <td><span className={`side-badge ${t.side === 'SHORT' ? 'side-short' : 'side-long'}`}>{t.side || 'LONG'}</span></td>
                     <td>{t.entryDate}</td>
                     <td>{t.open ? <span className="open-badge">OPEN</span> : t.exitDate}</td>
                     <td className={t.returnPct >= 0 ? 'bull' : 'bear'}>
@@ -408,7 +409,7 @@ function BacktestTab({ backtest, charts, tickerLabel, backtestPeriod, onPeriodCh
                   </tr>
                 ))}
                 {backtest.trades.length === 0 && (
-                  <tr><td colSpan={4} style={{ color: '#64748b', textAlign: 'center' }}>No trades recorded</td></tr>
+                  <tr><td colSpan={5} style={{ color: '#64748b', textAlign: 'center' }}>No trades recorded</td></tr>
                 )}
               </tbody>
             </table>
